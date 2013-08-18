@@ -28,6 +28,14 @@ var ServYou = ServYou || {};
             return toString.call(date) === "[object Date]";
         },
 
+        isObject: (toString.call(null) === "[object Object]") ?
+        	function(value) {
+        		return value !== null && value !== undefined && toString.call(value) === "[object Object]" && value.ownerDocument === undefined;
+        	} : 
+        	function (value) {
+        		return toString.call(value) === "[object Object]";
+        	}
+
         namespace: function(name, baseName) {
             var baseName = baseName || ServYou;
 
