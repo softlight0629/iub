@@ -4,10 +4,16 @@ var ServYou = ServYou || {};
 (function() {
 
     var toString = Object.prototype.toString,
-        ATTRS = 'ATTRS';
+        win = window,
+        doc = document,
+        objectPrototype = Object.prototype,
+        ATTRS = 'ATTRS',
+        GUID_DEFAULT = 'guid';
 
     $.extend(ServYou, 
     {
+        prefix : 'servyou-',
+
         isFunction: function(fn) {
             return typeof(fn) === "function";
         },
@@ -231,6 +237,38 @@ var ServYou = ServYou || {};
         docHeight : function(){
             var body = document.documentElement || document.body;
             return $(body).height();
+        },
+
+        ucfirst: function(s) {
+            s += '';
+            return s.charAt(0).toUpperCase() + s.substring(1);
+        },
+
+        wrapBehavior: function(self, action) {
+            return self['__servyou_wrap_' + action] = function(e) {
+                if (!self.get('disabled')) {
+                    self[action](e);
+                }
+            }
+        },
+
+        getWrapBehavior: function(self, action) {
+            return self['__servyou_wrap_' + action];
+        },
+
+        substitute: function(str, o, regexp) {
+            if (!ServYou.isString(str)
+                || (!ServYou.isObject(o)) && !ServYou.isArray(o)) {
+                return str;
+            }
+
+            return str.replace(regexp || /\\?\{([^{}]+)\}/g, function(match, name) {
+                if (match.charAt(0) === '\\') {
+                    return match.slice(1);
+                }
+
+                return (o[name] === undefined) ? '' : o[name];
+            })
         }
 
     })

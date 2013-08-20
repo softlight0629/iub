@@ -469,64 +469,154 @@
 			ServYou.each(this.get('children'), func);
 		},
 
-		handleDblClick: function() {
+		handleDblClick: function(ev) {
+			this.performActionInternal(ev);
+			if (!this.isChildrenElement(ev.target)) {
+				this.fire('dbclick', {domTarget: ev.target, domEvent: ev});
+			}
+		},
+
+		handleMouseOver: function(ev) {
+			var self = this,
+				el = self.get('el');
+
+			if (!isMouseEventWithinElement(ev, el)) {
+				self.handleMouseEnter(ev);
+			}
+		},
+
+		handleMouseOut: function(ev) {
+			var self = this,
+				el = self.get('el');
+
+			if (!isMouseEventWithinElement(ev, el)) {
+				self.handleMouseLeave(ev);
+			}
+		},
+
+		handleMouseEnter: function(ev) {
+			var self = this;
+			this.set('highlighted', !!ev);
+			self.fire()
+		},
+
+		handleMouseLeave: function(ev) {
+			var self = this;
+			self.get('active', false);
+			self.get('highlighted', !ev);
+			self.fire('mouseleave', {domTarget:ev, domEvent:ev});
+		},
+
+		handleMouseDown: function(ev) {
+			var self = this,
+				n,
+				isMouseActionButton = ev['which'] === 1,
+				el;
+
+			if (isMouseActionButton) {
+				el = self.getKeyEventTarget();
+				if (self.get('activeable')) {
+					self.set('active', true);
+				}
+				if (self.get('focusable')) {
+					el[0].focus();
+					self.set('focused', true);
+				}
+
+				if (!self.get('allowTextSelection')) {
+					n = ev.target.nodeName;
+					n = n && n.toLowerCase();
+
+					if (n !== 'input' && n !== 'textarea') {
+						ev.preventDefault();
+					}
+				}
+				if (!self.isChildrenElement(ev.target)) {
+					self.fire('mousedown', {domTarget: ev.target, domEvent: ev});
+				}
+			}
+		},
+
+		handleMouseUp: function(ev) {
+			var self = this,
+				isChildrenElement = self.isChildrenElement(ev.target);
+
+			if (self.get('active') && ev.which === 1) {
+				self.performActionInternal(ev);
+				self.set('active', false);
+				if (!isChildrenElement) {
+					self.fire('click', {domTarget: ev.target, domEvent: ev});
+				}
+			}
+			if (!isChildrenElement) {
+				self.fire('mouseup', {domTarget: ev.target, domEvent: ev});
+			}
+		},
+
+		handleConextMenu: function(ev) {
 
 		},
 
-		handleMouseOver: function() {
-
+		handleFocus: function(ev) {
+			this.set('focused', !!ev);
+			this.fire('focus', {domEvent:ev, domTarget:ev.target});
 		},
 
-		handleMouseOut: function() {
-
+		handleBlur: function(ev) {
+			this.set('focused', !ev);
+			this.fire('blur', {domEvent:ev, domTarget:ev.target});
 		},
 
-		handleMouseEnter: function() {
+		handleKeyEventInternal: function(ev) {
+			var self = this,
+				isChildrenElement = self.isChildrenElement(ev.target);
 
+			if (ev.which === 13) {
+				if (!isChildrenElement) {
+					self.fire('click',{domTarget:ev.target, domEvent: ev});
+				}
+
+				return this.performActionInternal(ev);
+			}
+
+			if (!isChildrenElement) {
+				self.fire('keydown', {domTarget: ev.target, domEvent: ev});
+			}
 		},
 
-		handleMouseLeave: function() {
-
+		handleKeydown: function(ev) {
+			var self = this;
+			if (self.handleKeyEventInternal(ev)) {
+				ev.halt();
+				return true;
+			}
 		},
 
-		handleMouseDown: function() {
-
+		handleKeyUp: function(ev) {
+			var self = this;
+			if (!self.isChildrenElement(ev.target)) {
+				self.fire('keyup', {domEvent:ev, domTarget:ev.target});
+			}
 		},
 
-		handleMouseUp: function() {
-
-		},
-
-		handleConextMenu: function() {
-
-		},
-
-		handleFocus: function() {
-
-		},
-
-		handleBlur: function() {
-
-		},
-
-		handleKeyEventInternal: function() {
-
-		},
-
-		handleKeydown: function() {
-
-		},
-
-		handleKeyUp: function() {
-
-		},
-
-		performActionInternal: function() {
+		performActionInternal: function(ev) {
 
 		},
 
 		destructor: function() {
+			var self = this,
+				id,
+				i,
+				view,
+				children = self.get('children');
 
+			id = self.get('id');
+			for (i = 0; i < children.length; i++) {
+				children[i].destroy && children[i].destroy();
+			}
+
+			self.view('view').destroy();
+			Manager.removeComponent(id);
 		}
 	},
 	{

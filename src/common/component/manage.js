@@ -62,15 +62,15 @@
 		__instances:componentInstances,
 
 		addComponent: function(id, component) {
-
+			componentInstances[id] = component;
 		},
 
 		removeComponent: function(id) {
-
+			delete componentInstances[id];
 		},
 
 		getComponent: function(id) {
-
+			return componentInstances[id];
 		},
 
 		getCssClassWithPrefix: getCssClassWithPrefix,
