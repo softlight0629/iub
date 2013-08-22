@@ -40,7 +40,7 @@ var ServYou = ServYou || {};
         	} : 
         	function (value) {
         		return toString.call(value) === "[object Object]";
-        	}
+        	},
 
         namespace: function(name, baseName) {
             var baseName = baseName || ServYou;
