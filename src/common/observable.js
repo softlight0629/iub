@@ -63,7 +63,7 @@
 
         _eventsMap: {},
 
-        _bullesEvents: [],
+        _bubblesEvents: [],
 
         _bubbleTarget: null,
 
@@ -100,7 +100,7 @@
         addEvents: function(events) {
             var _self = this,
                 existsEvents = _self._events,
-                eventsMap = _self.eventsMap;
+                eventsMap = _self._eventsMap;
 
             function addEvent(eventType, fn) {
                 if (ServYou.Array.indexOf(eventType, existsEvents) === -1) {
@@ -110,11 +110,11 @@
             }
 
             if (ServYou.isArray(events)) {
-                $.each(events, function(eventType, fn) {
-                    addEvent(eventType, fn);
+                $.each(events, function(index, eventType) {
+                    addEvent(eventType);
                 })
             } else {
-                addEvent(eventType, fn);
+                addEvent(events);
             }
         },
 
@@ -157,7 +157,7 @@
 
         fire: function(eventType, eventData) {
             var _self = this,
-                callbacks = _getCallback(eventType),
+                callbacks = _self._getCallback(eventType),
                 args = $.makeArray(arguments),
                 result;
 
