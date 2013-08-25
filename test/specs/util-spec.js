@@ -225,18 +225,171 @@ describe('测试事件', function() {
 
 describe('测试拷贝', function() {
 
+	it('测试深拷贝', function() {
+		var obj = {a:{}, b:{c:{}}},
+			obj1 = ServYou.cloneObject(obj);
+
+		expect(obj).not.toBe(obj1);
+		expect(obj.a).not.toBe(obj1.a);
+		expect(obj.b.c).not.toBe(obj1.b.c);
+	});
+
+	it('测试合并对象', function() {
+		var a = {a:'a'},
+			b = {b:'b'};
+		var c = ServYou.merge(a, b);
+		expect(c).not.toBe(a);
+		expect(a.a).toBe(c.a);
+		expect(b.b).toBe(c.b);
+	});
 });
 
 describe('测试 Base 类', function() {
 
+	function A(config) {
+		A.superclass.constructor.call(this, config);
+	}
+
+	A.ATTRS = {
+		m1: {
+			value:1
+		}
+	};
+	ServYou.extend(A, ServYou.Base);
+
+	var a  = new A({m2:2});
+
+	it('测试初始值', function() {
+		expect(a.get('m1')).toBe(1);
+		expect(a.get('m2')).toBe(2);
+	});
+
+	it('添加属性, 获取默认值', function() {
+		var val = 2;
+		a.addAttr('a1', {value:val});
+		expect(a.get('a1')).toBe(val);
+	});
+
+	it('设置属性， 获取属性', function() {
+		var val = 3;
+		a.set('a2', val);
+		expect(a.get('a2')).toBe(val);
+	});
+
+	it('设置属性， 触发事件', function() {
+		var val = 4;
+		var callback = jasmine.createSpy();
+		a.on('afterA1Change', callback);
+		a.set('a1', val, {silent:1});
+		expect(callback).not.toHaveBeenCalled();
+
+		a.set('a1', 5);
+		expect(a.get('a1')).toBe(5);
+		expect(callback).toHaveBeenCalled();
+
+		a.off('afterA1Change', callback);
+	});
+
+	it('清除属性', function() {
+		a.removeAttr('a1');
+		expect(a.get('a1')).toBe(undefined);
+	});
+
+	it('获取动态属性', function() {
+		var val = 2;
+		a.addAttr('b', {getter: function(value) {
+			return value * 2;
+		}});
+		a.set('b', val);
+		expect(a.get('b')).toBe(val * 2);
+	});
 });
 
 describe('测试UIBase 基类', function() {
+
+	function A() {
+
+	}
+
+	ServYou.extend(A, ServYou.UIBase);
+
+	var B = ServYou.Component.UIBase.extend({
+
+	});
+
+	var b = new B();
+	it('检测基础属性', function() {
+		expect(b.get('rendered')).toBe(false);
+		b.render();
+		expect(b.get('rendered')).toBe(true);
+	});
 
 });
 
 describe('测试控件 基类 Controller', function() {
 
+	it('生成控件', function() {
+		var control = new ServYou.Component.Controller({
+			render: '#c1',
+			content: '<p>第一个控件</p>',
+			allowTextSelection: true
+		});
+
+		control.render();
+		expect(control).not.toBe(undefined);
+		expect(control.get('el')).not.toBe(undefined);
+	});
+
+	it('生成多个控件', function() {
+		var control = new ServYou.Component.Controller({
+			render: '#c2',
+			content: '第二个控件',
+			children: [
+			{
+				id: '1',
+				xclass:'controller',
+				children:[
+				{
+					id: '2',
+					xclass: 'controller',
+					content:'22'
+				},
+				{
+					id:'3',
+					xclass:'controller',
+					content:'20'
+				}
+				],
+				content:'21'
+			},
+			{
+				id:'4',
+				xclass:'controller',
+				content:'22'
+			}
+			]
+		});
+
+		control.render();
+		var el = control.get('el'),
+			children = el.children();
+		expect(children.length).toBe(2);
+	});
+
+	it('测试事件', function() {
+		var callback = jasmine.createSpy(),
+			control = new ServYou.Component.Controller({
+				content:'<p>第三个控件</p>',
+				allowTextSelection: true,
+				listeners: {
+					'click': callback
+				}
+			});
+
+		control.render();
+		control.fire('click');
+		expect(callback).toHaveBeenCalled();
+	});
 });
 
 describe('测试 decorate', function() {
@@ -244,7 +397,62 @@ describe('测试 decorate', function() {
 });
 
 describe('测试控件查找', function() {
+	var control = new ServYou.Component.Controller({
+		render: '#c3',
+		content:'第三个控件',
+		children: [
+		{
+			id:'1',
+			xclass:'controller',
+			children:[
+			{
+				id:'2',
+				xclass:'controller',
+				content:'22'
+			},
+			{
+				id:'3',
+				xclass:'controller',
+				content:'20'
+			}
+			],
+			content:'21'
+		},
+		{
+			xclass:'controller',
+			content:'22'
+		}
+		]
+	});
+	control.render();
 
+	it('测试查找', function() {
+		var id = '1';
+		expect(control.getChild(id)).not.toBe(null);
+	});
+
+	it('测试级联查找', function() {
+		var id = '2';
+		expect(control.getChild(id)).toBe(null);
+		expect(control.getChild(id, true)).not.toBe(null);
+	});
+
+	it('测试级联查找多个', function() {
+		var items = control.getChildrenBy(function(item){
+			return item.get('content') === '22';
+		}, true);
+
+		expect(items.length).toBe(2);
+	});
+
+	it('测试删除', function() {
+		var id = '4',
+			control1 = control.getChild(id);
+
+		expect(control).not.toBe(null);
+		control.remove(true);
+		expect(control.getChild(id)).toBe(null);
+	})
 });
 
 describe('测试JSON', function() {

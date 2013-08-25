@@ -269,7 +269,20 @@ var ServYou = ServYou || {};
 
                 return (o[name] === undefined) ? '' : o[name];
             })
-        }
+        },
+
+        guid: (function() {
+            var map = {};
+            return function(prefix) {
+                prefix = prefix || ServYou.prefix + GUID_DEFAULT;
+                if (map[prefix]) {
+                    map[prefix] = 1;
+                } else {
+                    map[prefix] += 1;
+                }
+                return prefix + map[prefix];
+            }
+        })()
 
     })
 })()

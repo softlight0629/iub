@@ -111,9 +111,9 @@
 				initialValues = null;
 			}
 
-			ServYou.each(attrConfigs, function(attrConfig, name)) {
+			ServYou.each(attrConfigs, function(attrConfig, name) {
 				_self.addAttr(name, attrConfig, overrides);
-			};
+			});
 
 			if (initialValues) {
 				_self.set(initialValues);
@@ -197,11 +197,12 @@
 
 		_getDefAttrVal: function(name) {
 			var _self = this,
+			    attrs = _self.getAttrs(),
 				attrConfig = ensureNonEmpty(attrs, name),
 				valFn = attrConfig.valueFn,
 				val;
 
-			if (valFn && (valFn = normalFn(_self, valFn)) {
+			if (valFn && (valFn = normalFn(_self, valFn))) {
 				val = valFn.call(_self);
 				if (val !== undefined) {
 					attrConfig.value = val;
@@ -249,4 +250,5 @@
 		}
 	})
 
+	ServYou.Base = Base;
 })()

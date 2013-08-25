@@ -123,7 +123,7 @@
 
 		_uiSetElCls: function(cls) {
 			this.get('el').addClass(cls);
-		}
+		},
 
 		_uiSetELStyle: function(style) {
 			this.get('el').css(style);

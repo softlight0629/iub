@@ -111,7 +111,7 @@
 				m = UI_SET + ucfirst(attr);
 				if (self[m]) {
 					(function (attr, m) {
-						self.on('after' + ucfirst + 'Change', function (ev) {
+						self.on('after' + ucfirst(attr) + 'Change', function (ev) {
 
 							if (ev.target === self) {
 								self[m](ev.newVal, ev);
@@ -247,7 +247,7 @@
 				_self._set('rendered', true);
 			}
 
-			retrn _self;
+			return _self;
 		},
 
 		createDom: noop,
@@ -271,5 +271,56 @@
 			return _self;
 		}
 
-	})
+	});
+
+	ServYou.mix(UIBase,{
+
+		define: function(base, extensions, px, sx) {
+			if ($.isPlainObject(extensions)) {
+				sx = px;
+				px = extensions;
+				extensions = [];
+			};
+
+			function C() {
+				UIBase.apply(this, arguments);
+			}
+
+			ServYou.extend(C, base, px, sx);
+			ServYou.mixin(C, extensions);
+
+			return C;
+		},
+
+		extend: function extend(extensions, px, sx) {
+			var args = $.makeArray(arguments),
+				ret,
+				last = args[args.length - 1];
+
+			args.unshift(this);
+			if (last.xclass) {
+				args.pop();
+				args.push(last.xclass);
+			}
+			ret = UIBase.define.apply(UIBase, args);
+			if (last.xclass) {
+				var priority = last.priority || (this.priority ? (this.priority + 1) : 1);
+
+				Manager.setConstructorByXClass(last.xclass,{
+					constructor: ret,
+					priority: priority
+				});
+
+				ret.__xclass = last.xclass;
+				ret.priority = priority;
+				ret.toString = function() {
+					return last.xclass;
+				}
+			}
+			ret.extend = extend;
+			return ret;
+		}
+	});
+
+	ServYou.UIBase = UIBase;
 })()

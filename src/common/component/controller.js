@@ -110,7 +110,7 @@
 			(relatedTarget === elem[0] || $.contains(elem, relatedTarget));
 	}
 
-	var Controller = UIBase.extend([UIBase.Decorate, UIBase.Tpl, UIBase.ChildCfg, UIBase.KeyNav, UIBase.Depends],
+	var Controller = UIBase.extend([UIBase.Tpl],
 	{
 
 		isController: true,
@@ -615,7 +615,7 @@
 				children[i].destroy && children[i].destroy();
 			}
 
-			self.view('view').destroy();
+			self.get('view').destroy();
 			Manager.removeComponent(id);
 		}
 	},
@@ -711,7 +711,7 @@
 			},
 
 			visibleMode: {
-				view: 1
+				view: 1,
 				value:'display'
 			},
 
