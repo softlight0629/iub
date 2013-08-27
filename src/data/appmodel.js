@@ -1,47 +1,64 @@
 (function() {
 
-	var AbstractModel = ServYou.AbstractModel;
+    var Proxy = ServYou.Proxy,
+        AbstractModel = ServYou.AbstractModel;
 
-	function AppModel(config) {
-		AppModel.superclass.constructor.call(this, config);
-	}
+    function AppModel(config) {
+        AppModel.superclass.constructor.call(this, config);
+    }
 
-	AppModel.ATTRS = {
-		id:{
-			persist:1
-			value:{}
-		},
+    AppModel.ATTRS = {
+        id:{
+            persist:1,
+            value:null
+        },
 
-		icon:{
-			persist:1
-			value:{}
-		},
+        icon:{
+            persist:1,
+            value:null
+        },
 
-		url:{
-			persist:1
-			value:{}
-		},
+        type: {
+            persist:1,
+            value:null
+        },
 
-		name: {
-			persist:1
-			value:{}
-		},
+        url:{
+            persist:1,
+            value:null
+        },
 
-		dataMap : {
-			
-		}
+        name: {
+            persist:1,
+            value:null
+        },
 
-		idAttr: 'id'
+        dataMap : {
+           value: {
+            'id' : 'appid'
+           }
+        },
 
-		xmodel: 'desk-app',
+        idAttr: {
+            value:'id'
+        },
 
-		store: new Store();
-	}
+        xmodel: {
+            value:'desk-app'
+        },
 
-	ServYou.extend(AppModel, AbstractModel);
+        store: {
+            value:new Proxy.SuiProxy()
+        }
+    }
 
-	ServYou.augment(AppModel, {
+    ServYou.extend(AppModel, AbstractModel);
 
-	})
+    ServYou.augment(AppModel, 
+    {
+        
+    });
+
+    ServYou.AppModel = AppModel;
 
 })()

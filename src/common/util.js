@@ -8,7 +8,15 @@ var ServYou = ServYou || {};
         doc = document,
         objectPrototype = Object.prototype,
         ATTRS = 'ATTRS',
-        GUID_DEFAULT = 'guid';
+        GUID_DEFAULT = 'guid',
+        entityMap = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '&quot;',
+            "'": '&#39;',
+            "/": '&#x2F;'
+        };
 
     $.extend(ServYou, 
     {
@@ -32,6 +40,21 @@ var ServYou = ServYou || {};
 
         isDate: function(date) {
             return toString.call(date) === "[object Date]";
+        },
+
+        isNull: function(obj) {
+            return obj === undefined || obj === null;
+        },
+
+        isEmpty: function(obj) {
+            if (ServYou.isNull(obj)) return true;
+            if (ServYou.isArray(obj) || ServYou.isString(obj)) return obj.length === 0;
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    return false;
+                }
+            }
+            return true;
         },
 
         isObject: (toString.call(null) === "[object Object]") ?
@@ -74,7 +97,7 @@ var ServYou = ServYou || {};
         },
 
         cloneObject: function(obj) {
-            var result = ServYou.isArray ? [] : {};
+            var result = ServYou.isArray(obj) ? [] : {};
             return ServYou.mix(true, result, obj)
         },
 
@@ -282,7 +305,13 @@ var ServYou = ServYou || {};
                 }
                 return prefix + map[prefix];
             }
-        })()
+        })(),
+
+        escape: function(str) {
+            return String(str).replace(/[&<>"'\/]/g, function(s) {
+                return entityMap[s];
+            })
+        }
 
     })
 })()
