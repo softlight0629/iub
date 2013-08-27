@@ -1,7 +1,7 @@
 (function() {
 
     var ContainerableModel = function() {
-        
+
     }
 
     ContainerableModel.ATTRS = {
@@ -46,6 +46,14 @@
 
         isEmpty: function() {
 
+        },
+
+        fetch: function() {
+
+        },
+
+        save: function() {
+            
         }
 
 
